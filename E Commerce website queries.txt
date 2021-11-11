@@ -1,0 +1,127 @@
+create database ecommerce;
+use ecommerce;
+create table Supplier(
+SUPP_ID int,
+SUPP_NAME varchar(1000),
+SUPP_CITY varchar(1000),
+SUPP_PHONE bigint
+);
+
+create table Customer(
+CUS__ID int,
+CUS_NAME varchar(1000),
+CUS_PHONE bigint,
+CUS_CITY varchar(1000),
+CUS_GENDER varchar(1000)
+);
+
+/*alter table customer rename column CUS__ID to CUS_ID;*/
+
+create table Category(
+CAT_ID int,
+CAT_NAME varchar(1000)
+);
+
+create table Product(
+PRO_ID int,
+PRO_NAME varchar(1000),
+PRO_DESC varchar(1000),
+CAT_ID bigint
+);
+
+create table ProductDetails(
+PROD_ID int,
+PRO_ID int,
+SUPP_ID int,
+PRICE int
+);
+
+create table Orders(
+ORD_ID int,
+ORD_AMOUNT int,
+ORD_DATE date,
+CUS_ID int,
+PROD_ID int
+);
+
+create table Rating(
+RAT_ID int,
+CUS_ID int,
+SUPP_ID int,
+RAT_RATSTARS varchar(50)
+);
+
+alter table rating modify column RAT_RATSTARS int;
+
+
+insert into Supplier values(1, "Rajesh Retails","Delhi", 1234567890);
+insert into Supplier values(2, "Appario Ltd.","Mumbai", 2589631470);
+insert into Supplier values(3,"Knome products","Banglore", 9785462315);
+insert into Supplier values(4,"Bansal Retails","Kochi", 8975463285);
+insert into Supplier values(5, "Mittal Ltd.","Lucknow", 7898456532);
+
+
+insert into Customer values(1, "AAKASH", 9999999999,"DELHI", "M");
+insert into Customer values(2 ,"AMAN",9785463215 ,"NOIDA", "M");
+insert into Customer values(3,"NEHA", 9999999999, "MUMBAI", "F");
+insert into Customer values(4, "MEGHA", 9994562399, "KOLKATA", "F");
+insert into Customer values(5, "PULKIT", 7895999999, "LUCKNOW", "M");
+
+
+insert into Category values(1,"BOOKS");
+insert into Category values(2, "GAMES");
+insert into Category values(3,"GROCERIES");
+insert into Category values(4,"ELECTRONICS");
+insert into Category values(5,"CLOTHES");
+
+insert into Product values(1 ,"GTA V", "DFJDJFDJFDJFDJFJF", 2);
+insert into Product values(2,"TSHIRT ","DFDFJDFJDKFD", 5);
+insert into Product values(3, "ROG LAPTOP", "DFNTTNTNTERND", 4);
+insert into Product values(4, "OATS", "REURENTBTOTH", 3);
+insert into Product values(5, "HARRY POTTER", "NBEMCTHTJTH", 1);
+
+
+insert into ProductDetails values(1, 1, 2, 1500);
+insert into ProductDetails values(2, 3, 5, 30000);
+insert into ProductDetails values(3, 5, 1, 3000);
+insert into ProductDetails values(4, 2, 3, 2500);
+insert into ProductDetails values(5, 4, 1, 1000);
+
+insert into Orders values(20,1500, '2021-10-12' ,3 ,5);
+insert into Orders values(25,30500, '2021-09-16', 5 ,2);
+insert into Orders values(26,2000, '2021-10-05', 1 ,1);
+insert into Orders values(30,3500, '2021-08-16', 4 ,3);
+insert into Orders values(50,2000, '2021-10-06', 2 ,1);
+
+insert into rating values(1,2 ,2, 4);
+insert into rating values(2 ,3 ,4 ,3);
+insert into rating values(3, 5, 1 ,5);
+insert into rating values(4, 1 ,3 ,2);
+insert into rating values(5 ,4 ,5, 4);
+
+ select CUS_NAME from customer where cus__id in (select cus_id from orders where ord_amount>=3000) order by cus_gender; /*question 3*/
+ 
+ select  customer.cus_name, product.pro_name from orders inner join customer  on orders.cus_id=customer.cus__id inner join productdetails on orders.prod_id=productdetails.prod_id inner join product on productdetails.pro_id=product.pro_id where cus_id=2; /* question 4*/
+ 
+ select supplier.supp_name, count(*) as  product_Count from supplier inner join productdetails on supplier.supp_id=productdetails.supp_id group by supp_name having product_Count>1 ; /* question 5*/
+
+ select category.cat_name, product.pro_name, min(ord_amount) as min_ord_amount from category inner join product on category.cat_id=product.cat_id inner join productdetails on product.pro_id=productdetails.pro_id inner join orders on productdetails.prod_id=orders.prod_id;/*Question 6*/
+ 
+ select product.pro_id, productdetails.prod_id, product.pro_name,orders.ord_date from product inner join productdetails on product.pro_id=productdetails.pro_id inner join orders on productdetails.prod_id=orders.prod_id group by orders.ord_date having orders.ord_date>'2021-10-05';/*question 7*/
+ 
+ select  supplier.supp_name, supplier.supp_id, rating.rat_ratstars, customer.cus_name from rating inner join supplier on rating.supp_id=supplier.supp_id inner join customer on rating.cus_id=customer.cus__id order by rat_ratstars desc limit 3; /* question 8*/
+ 
+ select cus_name, cus_gender from customer where cus_name like 'a%' or cus_name like '%a'; /* question 9*/
+ 
+ select sum(ord_amount) as Total_Order_Amount_Male from customer inner join orders on customer.cus__id=orders.cus_id where customer.cus_gender='m'; /*question 10*/
+ 
+ select * from customer left outer join orders on customer.cus__id=orders.cus_id; /* question 11*/
+
+ 
+ select supplier.supp_id, supplier.supp_name,
+    case 
+        when rating.rat_ratstars>4 then 'Genuine Supplier'
+        when rating.rat_ratstars>2 then 'Average Supplier'
+	    else 'Supplier should not be considered' 
+        end as verdict from supplier inner join rating on supplier.supp_id=rating.supp_id order by supp_id asc; /*question 12*/
+ 
